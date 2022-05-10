@@ -55,8 +55,6 @@ class _ConnexionState extends State<Connexion> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-
-
             TextFormField(
               decoration: const InputDecoration(
                 border: UnderlineInputBorder(),
@@ -108,10 +106,9 @@ class _ConnexionState extends State<Connexion> {
 
   }
 
-  /*Future<String?> _getId() async {
+/*Future<String?> _getId() async {
     var deviceInfo = DeviceInfoPlugin();
     String? deviceId;
-
     if (Platform.isIOS) { // import 'dart:io'
       var iosDeviceInfo = await deviceInfo.iosInfo;
       deviceId = await iosDeviceInfo.identifierForVendor; // unique ID on iOS
@@ -159,7 +156,7 @@ class _HomeState extends State<Home> {
   }*/
   @override
   Widget build(BuildContext context) {
-    //String? deviceId = _getId().toString();
+
     return Scaffold(
       backgroundColor: Color.fromRGBO(43, 43, 43, 1),
       resizeToAvoidBottomInset: true,
@@ -357,15 +354,15 @@ class _HomeState extends State<Home> {
   }
 
   Future insertData(monImage) async {
-    String? monIdTel = _deviceId;
     String monMag = _selectMagasin!.substring(1, 6);
     String monMotif = _selectTheme!.replaceAll('"', '');
     String monComm = textController.text;
     int maNote = Note;
-    print("INSERT INTO fiche_visite_autre2 (Code_CM, Motif_Visite, Matricule_creation, Rapport_Visite, IMAGE_1, NOTE_1) VALUES ('$monMag', '$monMotif', '$monIdTel', '$monComm', '$monImage', '$maNote')");
+    _getId();
+    print("INSERT INTO fiche_visite_autre2 (Code_CM, Motif_Visite, Matricule_creation, Rapport_Visite, IMAGE_1, NOTE_1) VALUES ('$monMag', '$monMotif', '$_deviceId', '$monComm', '$monImage', '$maNote')");
     final url = Uri.parse('http://fdvrbi.000webhostapp.com/insert.php')
         .replace(queryParameters: {
-      'req': "INSERT INTO fiche_visite_autre2 (Code_CM, Motif_Visite, Matricule_creation, Rapport_Visite, IMAGE_1, NOTE_1) VALUES ('$monMag', '$monMotif', '$monIdTel', '$monComm', '$monImage', '$maNote')",
+      'req': "INSERT INTO fiche_visite_autre2 (Code_CM, Motif_Visite, Matricule_creation, Rapport_Visite, IMAGE_1, NOTE_1) VALUES ('$monMag', '$monMotif', '$_deviceId', '$monComm', '$monImage', '$maNote')",
     });
     http.Response response = await http.post(url);
   }
@@ -384,22 +381,23 @@ class _HomeState extends State<Home> {
       showDialog(
         context: this.context,
         builder: (context) =>
-            AlertDialog(
-              title: Text('Chargement...'),
-              content: Text(response.toString().replaceAll('"', ' ')),
-              actions: [
-                ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: Text('Ok')
-                )
-              ],
-            ),
+          AlertDialog(
+            title: Text('Chargement...'),
+            content: Text(response.toString().replaceAll('"', ' ')),
+            actions: [
+              ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text('Ok')
+              )
+            ],
+          ),
       );
     } catch (e) {
-      //print("expectation caught: $e");
+      print("expectation caught: $e");
     }
+
   }
 
   Future<String?> _getId() async {
@@ -413,21 +411,19 @@ class _HomeState extends State<Home> {
       var androidDeviceInfo = await deviceInfo.androidInfo;
       deviceId = await androidDeviceInfo.androidId; // unique ID on Android
     }
-    //return deviceId;
+    print(deviceId);
     setState(() => _deviceId = deviceId!);
   }
 
   Future<List> getData(maReq, maData) async {
-    //return _memoizerHome.runOnce(() async {
-      final url = Uri.parse('http://fdvrbi.000webhostapp.com/SelectTest.php')
-          .replace(queryParameters: {
-        'req': maReq,
-        'data': maData,
-      });
-      http.Response response = await http.get(url);
-      var data = jsonDecode(response.body);
-      return data;
-    //});
+    final url = Uri.parse('http://fdvrbi.000webhostapp.com/SelectTest.php')
+        .replace(queryParameters: {
+      'req': maReq,
+      'data': maData,
+    });
+    http.Response response = await http.get(url);
+    var data = jsonDecode(response.body);
+    return data;
   }
 
   _itemCountIncrease() {
@@ -446,4 +442,3 @@ class _HomeState extends State<Home> {
     });
   }
 }
-
