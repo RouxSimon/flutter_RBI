@@ -31,50 +31,8 @@ class Connexion extends StatefulWidget {
 
 
 class _ConnexionState extends State<Connexion> {
-
-  String? _selectMatricule;
-  //String? _deviceId;
-
-  //final AsyncMemoizer _memoizerConnexion = AsyncMemoizer();
-
-/*  _fetchData() {
-    return _memoizerConnexion.runOnce(() async {
-      await Future.delayed(Duration(seconds: 2));
-      return 'REMOTE DATA';
-    });
-  }*/
   @override
   Widget build(BuildContext context) {
-    //String? deviceId = _getId().toString();
-    /*return Scaffold(
-      appBar: AppBar(
-        title: const Text('Identifiez vous !'),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(12.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextFormField(
-              decoration: const InputDecoration(
-                border: UnderlineInputBorder(),
-                labelText: 'Entrer votre matricule',
-              ),
-            ),
-            ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => Home()),
-                  );
-                },
-                child: const Text('Go !')
-            ),
-          ],
-        ),
-      ),
-    );*/
-
     return Scaffold(
       backgroundColor: Color.fromRGBO(43, 43, 43, 1),
       resizeToAvoidBottomInset: true,
@@ -103,33 +61,7 @@ class _ConnexionState extends State<Connexion> {
         ),
       ),
     );
-
   }
-
-/*Future<String?> _getId() async {
-    var deviceInfo = DeviceInfoPlugin();
-    String? deviceId;
-    if (Platform.isIOS) { // import 'dart:io'
-      var iosDeviceInfo = await deviceInfo.iosInfo;
-      deviceId = await iosDeviceInfo.identifierForVendor; // unique ID on iOS
-    } else {
-      var androidDeviceInfo = await deviceInfo.androidInfo;
-      deviceId = await androidDeviceInfo.androidId; // unique ID on Android
-    }
-    //return deviceId;
-    setState(() => _deviceId = deviceId);
-  }*/
-
-/*  Future<List> getData(maReq, maData) async {
-      final url = Uri.parse('http://fdvrbi.000webhostapp.com/SelectTest.php')
-          .replace(queryParameters: {
-        'req': maReq,
-        'data': maData,
-      });
-      http.Response response = await http.get(url);
-      var data = jsonDecode(response.body);
-      return data;
-  }*/
 }
 
 
@@ -146,14 +78,6 @@ class _HomeState extends State<Home> {
   String? _deviceId;
   TextEditingController textController = TextEditingController();
   int Note = 0;
-
-/*  final AsyncMemoizer _memoizerHome = AsyncMemoizer();
-  _fetchData() {
-    return _memoizerHome.runOnce(() async {
-      await Future.delayed(Duration(seconds: 2));
-      return 'REMOTE DATA';
-    });
-  }*/
   @override
   Widget build(BuildContext context) {
 
@@ -281,7 +205,6 @@ class _HomeState extends State<Home> {
                   filled: true
               ),
               minLines: 5,
-              // any number you need (It works as the rows for the textarea)
               keyboardType: TextInputType.multiline,
               maxLines: 20,
             ),
@@ -411,8 +334,9 @@ class _HomeState extends State<Home> {
       var androidDeviceInfo = await deviceInfo.androidInfo;
       deviceId = await androidDeviceInfo.androidId; // unique ID on Android
     }
-    print(deviceId);
-    setState(() => _deviceId = deviceId!);
+    String matric = (await getData("SELECT DISTINCT matricule FROM users WHERE id_tel='$deviceId'", 'matricule')).first.replaceAll('"', '');
+    print("SELECT DISTINCT matricule FROM users WHERE id_tel='$deviceId'");
+    setState(() => _deviceId = matric);
   }
 
   Future<List> getData(maReq, maData) async {
