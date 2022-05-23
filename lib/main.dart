@@ -133,6 +133,7 @@ class _ConnexionState extends State<Connexion> {
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
         title: const Text('Bienvenu !'),
+        backgroundColor: Colors.red,
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -158,8 +159,6 @@ class _ConnexionState extends State<Connexion> {
                 style: ButtonStyle(
                   backgroundColor: MaterialStateProperty.resolveWith<Color>(
                         (Set<MaterialState> states) {
-                      if (states.contains(MaterialState.pressed))
-                        return Colors.red;
                       return Colors.red; // Use the component's default.
                     },
                   ),
@@ -247,10 +246,11 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
 
     return Scaffold(
-      backgroundColor: Color.fromRGBO(43, 43, 43, 1),
+      backgroundColor: Color.fromRGBO(255,255,255, 1),
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
         title: const Text('Photo de visite'),
+        backgroundColor: Colors.red,
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -284,7 +284,7 @@ class _HomeState extends State<Home> {
                             _selectMagasin = magasin!;
                           });
                         },
-                        style: const TextStyle(color: Colors.blue),
+                        style: const TextStyle(color: Colors.black),
                         items: listeMagasins.map((String value) {
                           return
                             DropdownMenuItem<String>(
@@ -322,7 +322,7 @@ class _HomeState extends State<Home> {
                             _selectTheme = theme!;
                           });
                         },
-                        style: const TextStyle(color: Colors.blue),
+                        style: const TextStyle(color: Colors.black),
                         items: listeThemes.map((String value) {
                           return
                             DropdownMenuItem<String>(
@@ -367,8 +367,8 @@ class _HomeState extends State<Home> {
               controller: textController,
               decoration: InputDecoration(
                   fillColor: Colors.white,
-                  focusColor: Colors.lightBlue,
-                  enabledBorder: UnderlineInputBorder(
+                  focusColor: Colors.red,
+                  enabledBorder: OutlineInputBorder(
                     borderSide: BorderSide(color: Colors.grey),
                     borderRadius: BorderRadius.circular(10.0),
                   ),
@@ -445,8 +445,6 @@ class _HomeState extends State<Home> {
                       style: ButtonStyle(
                         backgroundColor: MaterialStateProperty.resolveWith<Color>(
                               (Set<MaterialState> states) {
-                            if (states.contains(MaterialState.pressed))
-                              return Colors.red;
                             return Colors.red; // Use the component's default.
                           },
                         ),
@@ -510,8 +508,6 @@ class _HomeState extends State<Home> {
                   style: ButtonStyle(
                     backgroundColor: MaterialStateProperty.resolveWith<Color>(
                           (Set<MaterialState> states) {
-                        if (states.contains(MaterialState.pressed))
-                          return Colors.red;
                         return Colors.red; // Use the component's default.
                       },
                     ),
