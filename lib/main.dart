@@ -81,6 +81,17 @@ class _FirstScreenState extends State<FirstScreen> {
       ),
     );
   }
+  Future<List> getData(maReq, maData) async {
+    final url = Uri.parse('http://fdvrbi.000webhostapp.com/SelectTest.php')
+        .replace(queryParameters: {
+      'req': maReq,
+      'data': maData,
+    });
+    http.Response response = await http.get(url);
+    var data = jsonDecode(response.body);
+    return data;
+  }
+
   Future<String?> _getId() async {
     var deviceInfo = DeviceInfoPlugin();
     String? deviceId;
@@ -92,7 +103,22 @@ class _FirstScreenState extends State<FirstScreen> {
       var androidDeviceInfo = await deviceInfo.androidInfo;
       deviceId = await androidDeviceInfo.androidId; // unique ID on Android
     }
+    List ListIdPhone = (await getData("SELECT DISTINCT id_tel FROM users", 'id_tel'));
     setState(() => _deviceId2 = deviceId);
+
+    if(ListIdPhone.contains(deviceId)) {
+      String matric = (await getData("SELECT DISTINCT matricule FROM users WHERE id_tel='$deviceId'", 'matricule')).first.replaceAll('"', '');
+      setState(() => _deviceIdMatricule = matric);
+      Navigator.push(
+        this.context,
+        MaterialPageRoute(builder: (context) => Home()),
+      );
+    } else {
+      Navigator.push(
+        this.context,
+        MaterialPageRoute(builder: (context) => Connexion()),
+      );
+    }
   }
 }
 
