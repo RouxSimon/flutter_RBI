@@ -1,8 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.capture_image">
    <application
-        android:label="capture_image"
-        android:icon="@mipmap/ic_launcher">
+        android:label="RUBIS Smart"
+        android:icon="@mipmap/logo">
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"
