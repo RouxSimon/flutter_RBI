@@ -8,6 +8,7 @@ import 'package:path/path.dart';
 import 'package:async/async.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:responsive_framework/responsive_framework.dart';
+import 'package:intl/intl.dart';
 
 import 'home.dart';
 import 'firstScreen.dart';
@@ -294,6 +295,8 @@ class _HomeState extends State<Home> {
   TextEditingController textController = TextEditingController();
   TextEditingController textController2 = TextEditingController();
   int Note = 5;
+  DateTime now = DateTime.now();
+  String currentDate = DateFormat('dd-MM-y').format(DateTime.now());
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -447,27 +450,52 @@ class _HomeState extends State<Home> {
                 maxLines: 20,
               ),
 
-              SizedBox(
-                width: 120,
-                child: Card(
-                  child: Row(
-                    children: <Widget>[
-                      IconButton(
-                        icon: const Icon(Icons.remove),
-                        onPressed: () => _itemCountDecrease(),
-                      ),
-                      Text(Note.toString()),
-                      Container(
-                        alignment: Alignment.topRight,
-                        child: IconButton(
-                          icon: const Icon(Icons.add),
-                          onPressed: () => _itemCountIncrease(),
+              Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      alignment: Alignment.center,
+                      child: Card(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          //mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            IconButton(
+                              icon: const Icon(Icons.remove),
+                              onPressed: () => _itemCountDecrease(),
+                            ),
+                            Text(Note.toString()),
+                            IconButton(
+                              icon: const Icon(Icons.add),
+                              onPressed: () => _itemCountIncrease(),
+                            ),
+                          ],
                         ),
-                      )
-                    ],
+                      ),
+                    ),
                   ),
-                ),
+                  const SizedBox(width: 20,),
+                  Expanded(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        IconButton(
+                          icon: Icon(Icons.calendar_today),
+                          color: Colors.red,
+                          iconSize: 30,
+                          onPressed: () {
+                            _selectDate(context);
+                          },
+                        ),
+                        Text('Date de visite : ' + currentDate.toString())
+                      ],
+                    ),
+                  ),
+                ],
               ),
+
+
 
               Row(
                 children: [
@@ -529,6 +557,46 @@ class _HomeState extends State<Home> {
         ),
       ),
     );
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    DateTime? pickedDate = await showDatePicker(
+      initialDate: now,
+      firstDate: DateTime(2015),
+      lastDate: DateTime(2050),
+      context: context,
+      builder: (BuildContext context, Widget ?child) {
+        return Theme(
+          data: ThemeData(
+            primarySwatch: Colors.grey,
+            splashColor: Colors.black,
+            textTheme: const TextTheme(
+              subtitle1: TextStyle(color: Colors.black),
+              button: TextStyle(color: Colors.black),
+            ),
+            accentColor: Colors.black,
+            colorScheme: const ColorScheme.light(
+                primary: Colors.redAccent,
+                primaryVariant: Colors.black,
+                secondaryVariant: Colors.black,
+                onSecondary: Colors.black,
+                onPrimary: Colors.white,
+                surface: Colors.black,
+                onSurface: Colors.black,
+                secondary: Colors.black),
+            dialogBackgroundColor: Colors.white,
+          ),
+          child: child ??Text(""),
+        );
+      },
+    );
+
+    if (pickedDate != null && pickedDate != now) {
+      setState(() {
+        now = pickedDate;
+        currentDate = DateFormat('dd-MM-y').format(pickedDate);
+      });
+    }
   }
 
   void getImage({required ImageSource source}) async {
