@@ -9,6 +9,10 @@ import 'package:async/async.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
+import 'home.dart';
+import 'firstScreen.dart';
+import 'connexion.dart';
+
 void main() {
   runApp(const MaterialApp(
     debugShowCheckedModeBanner: false,
@@ -95,16 +99,6 @@ class _FirstScreenState extends State<FirstScreen> {
         ),
       ),
     );
-  }
-  Future<List> getData(maReq, maData) async {
-    final url = Uri.parse('http://fdvrbi.000webhostapp.com/SelectTest.php')
-        .replace(queryParameters: {
-      'req': maReq,
-      'data': maData,
-    });
-    http.Response response = await http.get(url);
-    var data = jsonDecode(response.body);
-    return data;
   }
 
   Future<String?> _getId() async {
@@ -230,16 +224,6 @@ class _ConnexionState extends State<Connexion> {
       ),
     );
   }
-  Future<List> getData(maReq, maData) async {
-    final url = Uri.parse('http://fdvrbi.000webhostapp.com/SelectTest.php')
-        .replace(queryParameters: {
-      'req': maReq,
-      'data': maData,
-    });
-    http.Response response = await http.get(url);
-    var data = jsonDecode(response.body);
-    return data;
-  }
 
   Future<String?> _getId() async {
     var deviceInfo = DeviceInfoPlugin();
@@ -340,7 +324,7 @@ class _HomeState extends State<Home> {
             children: [
               FutureBuilder(
                 future: getData(
-                    'SELECT DISTINCT "test" as Code_CM, CONCAT(Code_CM," - ",nom_mag) as Code_CM FROM magasin WHERE Code_CM LIKE "%CM%" AND OuvertFerme = 0 ORDER BY Code_CM',
+                    'SELECT DISTINCT "test" as Code_CM, CONCAT(Code_CM," - ",nom_mag) as Code_CM FROM magasin WHERE Code_CM LIKE "%CM%" AND OuvertFerme = 0 ORDER BY nom_mag',
                     'Code_CM'),
                 builder: (BuildContext context,
                     AsyncSnapshot<dynamic> snapshot) {
@@ -649,18 +633,6 @@ class _HomeState extends State<Home> {
     setState(() => _deviceIdMatricule = matric);
     setState(() => _deviceId = deviceId);
   }
-
-  Future<List> getData(maReq, maData) async {
-    final url = Uri.parse('http://fdvrbi.000webhostapp.com/SelectTest.php')
-        .replace(queryParameters: {
-      'req': maReq,
-      'data': maData,
-    });
-    http.Response response = await http.get(url);
-    var data = jsonDecode(response.body);
-    return data;
-  }
-
   _itemCountIncrease() {
     setState(() {
       if (Note < 10) {
@@ -668,7 +640,6 @@ class _HomeState extends State<Home> {
       }
     });
   }
-
   _itemCountDecrease() {
     setState(() {
       if (Note > 0) {
@@ -676,4 +647,16 @@ class _HomeState extends State<Home> {
       }
     });
   }
+}
+
+//globals functions
+Future<List> getData(maReq, maData) async {
+  final url = Uri.parse('http://fdvrbi.000webhostapp.com/SelectTest.php')
+      .replace(queryParameters: {
+    'req': maReq,
+    'data': maData,
+  });
+  http.Response response = await http.get(url);
+  var data = jsonDecode(response.body);
+  return data;
 }
