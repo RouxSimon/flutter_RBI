@@ -42,6 +42,158 @@ class FirstScreen extends StatefulWidget {
   State<FirstScreen> createState() => _FirstScreenState();
 }
 
+class MesFiches extends StatefulWidget {
+  const MesFiches({Key? key}) : super(key: key);
+
+  @override
+  State<MesFiches> createState() => _MesFichesState();
+}
+
+class _MesFichesState extends State<MesFiches> {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      builder: (context, widget) => ResponsiveWrapper.builder(
+        BouncingScrollWrapper.builder(context, widget!),
+        maxWidth: 10000,
+        minWidth: 10000,
+        defaultScale: true,
+        breakpoints: [
+          ResponsiveBreakpoint(breakpoint: 1000, name: MOBILE),
+        ],
+        background: Container(color: Color(0xFFF5F5F5))
+      ),
+      home: Scaffold(
+        backgroundColor: Color.fromRGBO(255,255,255, 1),
+        resizeToAvoidBottomInset: true,
+        appBar: AppBar(
+          actions: [
+            IconButton(
+              icon: Icon(Icons.add_a_photo_outlined),
+              onPressed: () {
+                Navigator.push(
+                  this.context,
+                  MaterialPageRoute(builder: (context) => Home()),
+                );
+              },
+            ),
+          ],
+          title: const Text('Mes visites'),
+          backgroundColor: Colors.red,
+          centerTitle: true,
+        ),
+
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(12.0),
+          child: FutureBuilder(
+            future: getData('SELECT * FROM fiche_visite_autre2', '*'),
+            builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+              if (snapshot.connectionState == ConnectionState.done && snapshot.hasData && snapshot.data != null) {
+                List<String> listeID = [];
+                List<String> listeCodeCM = [];
+                List<String> listeDate_Visite = [];
+                List<String> listeDuree_visite_en_jours = [];
+                List<String> listeMotif_Visite = [];
+                List<String> listeNOTE_1 = [];
+                List<String> listeRapport_Visite = [];
+                //print(snapshot.data);
+
+                for (var i = 0; i < 10; i++) {
+                  listeID.add(snapshot.data[i]['ID']);
+                  listeCodeCM.add(snapshot.data[i]['Code_CM']);
+                  listeDate_Visite.add(snapshot.data[i]['Date_Visite']);
+                  listeDuree_visite_en_jours.add(snapshot.data[i]['Duree_visite_en_jours']);
+                  listeMotif_Visite.add(snapshot.data[i]['Motif_Visite']);
+                  listeNOTE_1.add(snapshot.data[i]['NOTE_1']);
+                  listeRapport_Visite.add(snapshot.data[i]['Rapport_Visite']);
+                }
+                final listOfColumns = snapshot.data.map((dynamic value) {
+                  print(value['Code_CM']);
+                }).toSet().toList();
+                return DataTable(
+                  columns: const <DataColumn>[
+                    DataColumn(
+                      label: Text(
+                        'ID',
+                        style: TextStyle(fontStyle: FontStyle.italic),
+                      ),
+                    ),
+                    DataColumn(
+                      label: Text(
+                        'Code CM',
+                        style: TextStyle(fontStyle: FontStyle.italic),
+                      ),
+                    ),
+                    DataColumn(
+                      label: Text(
+                        'Date visite',
+                        style: TextStyle(fontStyle: FontStyle.italic),
+                      ),
+                    ),
+                    DataColumn(
+                      label: Text(
+                        'Durée',
+                        style: TextStyle(fontStyle: FontStyle.italic),
+                      ),
+                    ),
+                    DataColumn(
+                      label: Text(
+                        'Motif',
+                        style: TextStyle(fontStyle: FontStyle.italic),
+                      ),
+                    ),
+                    DataColumn(
+                      label: Text(
+                        'Note',
+                        style: TextStyle(fontStyle: FontStyle.italic),
+                      ),
+                    ),
+                    DataColumn(
+                      label: Text(
+                        'Rapport',
+                        style: TextStyle(fontStyle: FontStyle.italic),
+                      ),
+                    ),
+                  ],
+                  rows: <DataRow>[
+//                      for (var i = 0; i < 10; i++) {
+                      DataRow(
+                        cells: <DataCell>[
+                          DataCell(Text(listeID[0].toString())),
+                          DataCell(Text(listeCodeCM[0].toString())),
+                          DataCell(Text(listeDate_Visite[0].toString())),
+                          DataCell(Text(listeDuree_visite_en_jours[0].toString())),
+                          DataCell(Text(listeMotif_Visite[0].toString())),
+                          DataCell(Text(listeNOTE_1[0].toString())),
+                          DataCell(Text(listeRapport_Visite[0].toString())),
+                        ],
+                      ),
+                      DataRow(
+                        cells: <DataCell>[
+                          DataCell(Text(listeID[1].toString())),
+                          DataCell(Text(listeCodeCM[1].toString())),
+                          DataCell(Text(listeDate_Visite[1].toString())),
+                          DataCell(Text(listeDuree_visite_en_jours[1].toString())),
+                          DataCell(Text(listeMotif_Visite[1].toString())),
+                          DataCell(Text(listeNOTE_1[1].toString())),
+                          DataCell(Text(listeRapport_Visite[1].toString())),
+                        ],
+                      ),
+//                    }
+                  ],
+                );
+              } else {
+                return const Center(child: CircularProgressIndicator());
+              }
+            },
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _FirstScreenState extends State<FirstScreen> {
   TextEditingController textController = TextEditingController();
   TextEditingController textController2 = TextEditingController();
@@ -253,7 +405,7 @@ class _ConnexionState extends State<Connexion> {
   }
 
   Future<String> checkMDP(MATR, MDP) async {
-    final url = Uri.parse('http://fdvrbi.000webhostapp.com/checkMDP.php')
+    final url = Uri.parse('http://fdvrbi.fr/checkMDP.php')
         .replace(queryParameters: {
       'MATR': MATR,
       'MDP': MDP,
@@ -281,7 +433,6 @@ class _ConnexionState extends State<Connexion> {
 }
 
 class _HomeState extends State<Home> {
-
   String uploadEndPoint = 'https://files.000webhost.com/image_upload.php';
   Future<File>? file;
   String status = '';
@@ -296,7 +447,7 @@ class _HomeState extends State<Home> {
   TextEditingController textController2 = TextEditingController();
   int Note = 5;
   DateTime now = DateTime.now();
-  String currentDate = DateFormat('dd-MM-y').format(DateTime.now());
+  String currentDate = DateFormat('y-MM-dd').format(DateTime.now());
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -315,7 +466,18 @@ class _HomeState extends State<Home> {
         backgroundColor: Color.fromRGBO(255,255,255, 1),
         resizeToAvoidBottomInset: true,
         appBar: AppBar(
-          title: const Text('Photo de visite'),
+          title: const Text('Nouvelle fiche de visite'),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.file_copy_outlined),
+              onPressed: () {
+                Navigator.push(
+                  this.context,
+                  MaterialPageRoute(builder: (context) => MesFiches()),
+                );
+              },
+            ),
+          ],
           backgroundColor: Colors.red,
           centerTitle: true,
         ),
@@ -365,7 +527,6 @@ class _HomeState extends State<Home> {
                   }
                 },
               ),
-
               FutureBuilder(
                 future: getData('SELECT DISTINCT theme FROM themes', 'theme'),
                 builder: (BuildContext context,
@@ -594,7 +755,7 @@ class _HomeState extends State<Home> {
     if (pickedDate != null && pickedDate != now) {
       setState(() {
         now = pickedDate;
-        currentDate = DateFormat('dd-MM-y').format(pickedDate);
+        currentDate = DateFormat('y-MM-dd').format(pickedDate);
       });
     }
   }
@@ -614,10 +775,11 @@ class _HomeState extends State<Home> {
     String monMotif = _selectTheme!.replaceAll('"', '');
     String monComm = textController.text;
     int maNote = Note;
+    String dateVisite = currentDate;
 
     final url = Uri.parse('http://fdvrbi.000webhostapp.com/insert.php')
         .replace(queryParameters: {
-      'req': "INSERT INTO fiche_visite_autre2 (Code_CM, Motif_Visite, Matricule_creation, Rapport_Visite, IMAGE_1, NOTE_1) VALUES ('$monMag', '$monMotif', '$_deviceIdMatricule', '$monComm', '$monImage', '$maNote')",
+      'req': "INSERT INTO fiche_visite_autre2 (Code_CM, Motif_Visite, Matricule_creation, Rapport_Visite, IMAGE_1, NOTE_1, Date_Visite) VALUES ('$monMag', '$monMotif', '$_deviceIdMatricule', '$monComm', '$monImage', '$maNote', '$dateVisite')",
     });
     http.Response response = await http.post(url);
   }
@@ -719,7 +881,7 @@ class _HomeState extends State<Home> {
 
 //globals functions
 Future<List> getData(maReq, maData) async {
-  final url = Uri.parse('http://fdvrbi.000webhostapp.com/SelectTest.php')
+  final url = Uri.parse('http://fdvrbi.fr//SelectTest.php')
       .replace(queryParameters: {
     'req': maReq,
     'data': maData,
