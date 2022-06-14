@@ -60,7 +60,7 @@ class _MesFichesState extends State<MesFiches> {
         minWidth: 10000,
         defaultScale: true,
         breakpoints: [
-          ResponsiveBreakpoint(breakpoint: 1000, name: MOBILE),
+          ResponsiveBreakpoint(breakpoint: 500, name: MOBILE),
         ],
         background: Container(color: Color(0xFFF5F5F5))
       ),
@@ -90,52 +90,69 @@ class _MesFichesState extends State<MesFiches> {
             future: getData('SELECT * FROM fiche_visite_autre2', '*'),
             builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
               if (snapshot.connectionState == ConnectionState.done && snapshot.hasData && snapshot.data != null) {
-                List<dynamic> _userTransactionList = snapshot.data;
+                List<dynamic> _mesColones = snapshot.data;
 
                   List<DataRow> rows = [];
-                  for (var i = 0; i < _userTransactionList.length; i++) {
+                  for (var i = 0; i < _mesColones.length; i++) {
                     rows.add(DataRow(cells: [
-                      DataCell(
-                        Text(_userTransactionList[i]['ID'].toString()),
-                      ),
-                      DataCell(
-                        Text(_userTransactionList[i]['Code_CM'].toString()),
-                      ),
-                      DataCell(
-                        Text(_userTransactionList[i]['Date_Visite'].toString()),
-                      ),
                       DataCell(
                         IconButton(
                           onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Matthew 34 199.55'),
+                            Container(
+                              width: 600,
+                              height: 700,
+                              decoration: const BoxDecoration(
+                                image: DecorationImage(
+                                  image: AssetImage("images/Splash_screen.PNG"),
+                                  fit: BoxFit.cover,
+                                ),
                               ),
                             );
                           },
                           icon: const Icon(
-                            Icons.email_outlined,
+                            Icons.file_copy_outlined,
                             color: Colors.red,
                           ),
                         ),
+                      ),
+                      DataCell(
+                        Text(_mesColones[i]['Code_CM'].toString()),
+                      ),
+                      DataCell(
+                        Text(_mesColones[i]['Motif_Visite'].toString()),
+                      ),
+                      DataCell(
+                        Text(_mesColones[i]['Date_Visite'].toString()),
+                      ),
+                      DataCell(
+                        Text(_mesColones[i]['NOTE_1'].toString()),
+                      ),
+                      DataCell(
+                        Text(_mesColones[i]['Rapport_Visite'].toString()),
                       ),
                     ]));
                   }
                   return SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
-                      //child: _getData01(_userTransactionList, context)
+                      //child: _getData01(_mesColones, context)
                       child: DataTable(
                         columnSpacing: 30.0,
                         columns: const <DataColumn>[
                           DataColumn(
                             label: Text(
-                              'ID',
+                              'Afficher',
                               style: TextStyle(color: Colors.deepOrange, fontWeight: FontWeight.bold),
                             ),
                           ),
                           DataColumn(
                             label: Text(
-                              'Code_CM',
+                              'Code CM',
+                              style: TextStyle(color: Colors.deepOrange, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          DataColumn(
+                            label: Text(
+                              'Motif',
                               style: TextStyle(color: Colors.deepOrange, fontWeight: FontWeight.bold),
                             ),
                           ),
@@ -147,7 +164,13 @@ class _MesFichesState extends State<MesFiches> {
                           ),
                           DataColumn(
                             label: Text(
-                              'Afficher',
+                              'Note',
+                              style: TextStyle(color: Colors.deepOrange, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          DataColumn(
+                            label: Text(
+                              'Commentaire',
                               style: TextStyle(color: Colors.deepOrange, fontWeight: FontWeight.bold),
                             ),
                           ),
