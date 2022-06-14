@@ -98,15 +98,13 @@ class _MesFichesState extends State<MesFiches> {
                       DataCell(
                         IconButton(
                           onPressed: () {
-                            Container(
-                              width: 600,
-                              height: 700,
-                              decoration: const BoxDecoration(
-                                image: DecorationImage(
-                                  image: AssetImage("images/Splash_screen.PNG"),
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return Dialog(
+                                  child: Image.network('http://fdvrbi.fr/fdvpict/'+_mesColones[i]['IMAGE_1'].toString()),
+                                );
+                              }
                             );
                           },
                           icon: const Icon(
@@ -417,7 +415,7 @@ class _ConnexionState extends State<Connexion> {
   Future insertUser() async {
     String monMatricule = textController.text;
     if(monMatricule!='' && monMatricule.length==7) {
-      final url = Uri.parse('http://fdvrbi.000webhostapp.com/insert.php')
+      final url = Uri.parse('http://fdvrbi.fr/insert.php')
           .replace(queryParameters: {
         'req': "UPDATE users SET id_tel = '$_deviceId' WHERE matricule='$monMatricule'",
       });
@@ -432,7 +430,7 @@ class _ConnexionState extends State<Connexion> {
 }
 
 class _HomeState extends State<Home> {
-  String uploadEndPoint = 'https://files.000webhost.com/image_upload.php';
+  String uploadEndPoint = 'http://fdvrbi.fr/image_upload.php';
   Future<File>? file;
   String status = '';
   String? base64Image;
@@ -776,7 +774,7 @@ class _HomeState extends State<Home> {
     int maNote = Note;
     String dateVisite = currentDate;
 
-    final url = Uri.parse('http://fdvrbi.000webhostapp.com/insert.php')
+    final url = Uri.parse('http://fdvrbi.fr/insert.php')
         .replace(queryParameters: {
       'req': "INSERT INTO fiche_visite_autre2 (Code_CM, Motif_Visite, Matricule_creation, Rapport_Visite, IMAGE_1, NOTE_1, Date_Visite) VALUES ('$monMag', '$monMotif', '$_deviceIdMatricule', '$monComm', '$monImage', '$maNote', '$dateVisite')",
     });
@@ -811,7 +809,7 @@ class _HomeState extends State<Home> {
             filePath.path, filename: fileName),
       });
       Response response = await Dio().post(
-          "http://fdvrbi.000webhostapp.com/image_upload.php", data: formData
+          "http://fdvrbi.fr/image_upload.php", data: formData
       );
       insertData(fileName);
       showDialog(
