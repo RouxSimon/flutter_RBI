@@ -15,9 +15,12 @@ import 'firstScreen.dart';
 import 'connexion.dart';
 
 void main() {
-  runApp(const MaterialApp(
+  runApp(MaterialApp(
+    routes: {
+      '/home2': (BuildContext context) => const Home2(),
+    },
     debugShowCheckedModeBanner: false,
-    home: FirstScreen(),
+    home: const FirstScreen(),
   ));
 }
 
@@ -33,6 +36,13 @@ class Home extends StatefulWidget {
 
   @override
   State<Home> createState() => _HomeState();
+}
+
+class Home2 extends StatefulWidget {
+  const Home2({Key? key}) : super(key: key);
+
+  @override
+  State<Home2> createState() => _Home2State();
 }
 
 class FirstScreen extends StatefulWidget {
@@ -114,6 +124,30 @@ class _MesFichesState extends State<MesFiches> {
                         ),
                       ),
                       DataCell(
+                        IconButton(
+                          onPressed: () {
+                            Navigator.pushNamed(context, '/home2',
+                              arguments: {
+                                "CM":  _mesColones[i]['Code_CM'].toString(),
+                                "Motif": _mesColones[i]['Motif_Visite'].toString(),
+                                "Image": _mesColones[i]['IMAGE_1'].toString(),
+                                "Rapport": _mesColones[i]['Rapport_Visite'].toString(),
+                                "Note": _mesColones[i]['NOTE_1'].toString(),
+                                "Date": _mesColones[i]['Date_Visite'].toString()
+                              }
+                            );
+                            // Navigator.push(
+                            //   this.context,
+                            //   MaterialPageRoute(builder: (context) => Home()),
+                            // );
+                          },
+                          icon: const Icon(
+                            Icons.mode_edit_outlined,
+                            color: Colors.red,
+                          ),
+                        ),
+                      ),
+                      DataCell(
                         Text(_mesColones[i]['Code_CM'].toString()),
                       ),
                       DataCell(
@@ -139,6 +173,12 @@ class _MesFichesState extends State<MesFiches> {
                           DataColumn(
                             label: Text(
                               'Afficher',
+                              style: TextStyle(color: Colors.deepOrange, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          DataColumn(
+                            label: Text(
+                              'Editer',
                               style: TextStyle(color: Colors.deepOrange, fontWeight: FontWeight.bold),
                             ),
                           ),
@@ -231,6 +271,7 @@ class _FirstScreenState extends State<FirstScreen> {
                   ),
                 ),
               ),
+              Text('Version 1.1'),
               ElevatedButton(
                   style: ButtonStyle(
                     backgroundColor: MaterialStateProperty.resolveWith<Color>(
@@ -304,7 +345,7 @@ class _ConnexionState extends State<Connexion> {
         backgroundColor: Color.fromRGBO(255, 255, 255, 1),
         resizeToAvoidBottomInset: true,
         appBar: AppBar(
-          title: const Text('Bienvenu !'),
+          title: const Text('Bienvenue !'),
           backgroundColor: Colors.red,
           centerTitle: true,
         ),
@@ -447,271 +488,258 @@ class _HomeState extends State<Home> {
   String currentDate = DateFormat('y-MM-dd').format(DateTime.now());
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      builder: (context, widget) => ResponsiveWrapper.builder(
-        BouncingScrollWrapper.builder(context, widget!),
-        maxWidth: 2000,
-        minWidth: 1000,
-        defaultScale: true,
-        breakpoints: [
-          ResponsiveBreakpoint(breakpoint: 100, name: MOBILE),
+    return Scaffold(
+      backgroundColor: Color.fromRGBO(255,255,255, 1),
+      resizeToAvoidBottomInset: true,
+      appBar: AppBar(
+        title: const Text('Nouvelle fiche de visite'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.file_copy_outlined),
+            onPressed: () {
+              Navigator.push(
+                this.context,
+                MaterialPageRoute(builder: (context) => MesFiches()),
+              );
+            },
+          ),
         ],
-        background: Container(color: Color(0xFFF5F5F5))
+        backgroundColor: Colors.red,
+        centerTitle: true,
       ),
-      home: Scaffold(
-        backgroundColor: Color.fromRGBO(255,255,255, 1),
-        resizeToAvoidBottomInset: true,
-        appBar: AppBar(
-          title: const Text('Nouvelle fiche de visite'),
-          actions: [
-            IconButton(
-              icon: Icon(Icons.file_copy_outlined),
-              onPressed: () {
-                Navigator.push(
-                  this.context,
-                  MaterialPageRoute(builder: (context) => MesFiches()),
-                );
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(12.0),
+
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            FutureBuilder(
+              future: getData(
+                  'SELECT DISTINCT "test" as Code_CM, CONCAT(Code_CM," - ",nom_mag) as Code_CM FROM magasin WHERE Code_CM LIKE "%CM%" AND OuvertFerme = 0 ORDER BY nom_mag',
+                  'Code_CM'),
+              builder: (BuildContext context,
+                  AsyncSnapshot<dynamic> snapshot) {
+                if (snapshot.connectionState == ConnectionState.done &&
+                    snapshot.hasData && snapshot.data != null) {
+                  List<String> listeMagasins = [];
+                  for (var i = 0; i < snapshot.data.length; i++) {
+                    listeMagasins.add(snapshot.data[i].replaceAll("[", "")
+                        .replaceAll("]", "")
+                    );
+                  }
+                  return
+                    Container(
+                      height: 30,
+                      child: DropdownButton<String>(
+                        isExpanded: true,
+                        value: _selectMagasin,
+                        onChanged: (String? magasin) {
+                          setState(() {
+                            _selectMagasin = magasin!;
+                          });
+                        },
+                        style: const TextStyle(color: Colors.black),
+                        items: listeMagasins.map((String value) {
+                          return
+                            DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value.replaceAll('"', '')),
+                            );
+                        }).toSet().toList(),
+                      )
+                    );
+                } else {
+                  return const Center(child: CircularProgressIndicator());
+                }
               },
             ),
-          ],
-          backgroundColor: Colors.red,
-          centerTitle: true,
-        ),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(12.0),
-
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              FutureBuilder(
-                future: getData(
-                    'SELECT DISTINCT "test" as Code_CM, CONCAT(Code_CM," - ",nom_mag) as Code_CM FROM magasin WHERE Code_CM LIKE "%CM%" AND OuvertFerme = 0 ORDER BY nom_mag',
-                    'Code_CM'),
-                builder: (BuildContext context,
-                    AsyncSnapshot<dynamic> snapshot) {
-                  if (snapshot.connectionState == ConnectionState.done &&
-                      snapshot.hasData && snapshot.data != null) {
-                    List<String> listeMagasins = [];
-                    for (var i = 0; i < snapshot.data.length; i++) {
-                      listeMagasins.add(snapshot.data[i].replaceAll("[", "")
-                          .replaceAll("]", "")
-                      );
-                    }
-                    return
-                      Container(
-                        height: 30,
-                        child: DropdownButton<String>(
-                          isExpanded: true,
-                          value: _selectMagasin,
-                          onChanged: (String? magasin) {
-                            setState(() {
-                              _selectMagasin = magasin!;
-                            });
-                          },
-                          style: const TextStyle(color: Colors.black),
-                          items: listeMagasins.map((String value) {
-                            return
-                              DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(value.replaceAll('"', '')),
-                              );
-                          }).toSet().toList(),
-                        )
-                      );
-                  } else {
-                    return const Center(child: CircularProgressIndicator());
+            FutureBuilder(
+              future: getData('SELECT DISTINCT theme FROM themes', 'theme'),
+              builder: (BuildContext context,
+                  AsyncSnapshot<dynamic> snapshot) {
+                if (snapshot.connectionState == ConnectionState.done && snapshot.hasData && snapshot.data != null) {
+                  List<String> listeThemes = [];
+                  for (var i = 0; i < snapshot.data.length; i++) {
+                    listeThemes.add(snapshot.data[i].replaceAll("[", "")
+                        .replaceAll("]", "")
+                    );
                   }
-                },
-              ),
-              FutureBuilder(
-                future: getData('SELECT DISTINCT theme FROM themes', 'theme'),
-                builder: (BuildContext context,
-                    AsyncSnapshot<dynamic> snapshot) {
-                  if (snapshot.connectionState == ConnectionState.done && snapshot.hasData && snapshot.data != null) {
-                    List<String> listeThemes = [];
-                    for (var i = 0; i < snapshot.data.length; i++) {
-                      listeThemes.add(snapshot.data[i].replaceAll("[", "")
-                          .replaceAll("]", "")
-                      );
-                    }
-                    return
-                      Container(
-                        height: 40,
-                        child: DropdownButton<String>(
-                          isExpanded: true,
-                          value: _selectTheme,
-                          onChanged: (String? theme) {
-                            setState(() {
-                              _selectTheme = theme!;
-                            });
-                          },
-                          style: const TextStyle(color: Colors.black),
-                          items: listeThemes.map((String value) {
-                            return
-                              DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(value.replaceAll('"', '').replaceAll(
-                                    "_", " ")),
-                              );
-                          }).toSet().toList(),
-                        )
-                      );
-                  } else {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                },
-              ),
+                  return
+                    Container(
+                      height: 40,
+                      child: DropdownButton<String>(
+                        isExpanded: true,
+                        value: _selectTheme,
+                        onChanged: (String? theme) {
+                          setState(() {
+                            _selectTheme = theme!;
+                          });
+                        },
+                        style: const TextStyle(color: Colors.black),
+                        items: listeThemes.map((String value) {
+                          return
+                            DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value.replaceAll('"', '').replaceAll(
+                                  "_", " ")),
+                            );
+                        }).toSet().toList(),
+                      )
+                    );
+                } else {
+                  return const Center(child: CircularProgressIndicator());
+                }
+              },
+            ),
 
-              if(tmpFile != null)
-                Container(
+            if(tmpFile != null)
+              Container(
+                width: 640,
+                height: 320,
+                alignment: Alignment.topCenter,
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: FileImage(tmpFile!),
+                  ),
+                ),
+              )
+            else
+              GestureDetector(
+                onTap: () => getImage(source: ImageSource.camera),
+                child: Container(
                   width: 640,
                   height: 320,
-                  alignment: Alignment.topCenter,
-                  decoration: BoxDecoration(
+                  alignment: Alignment.center,
+                  decoration: const BoxDecoration(
                     image: DecorationImage(
-                      image: FileImage(tmpFile!),
-                    ),
-                  ),
-                )
-              else
-                GestureDetector(
-                  onTap: () => getImage(source: ImageSource.camera),
-                  child: Container(
-                    width: 640,
-                    height: 320,
-                    alignment: Alignment.center,
-                    decoration: const BoxDecoration(
-                      image: DecorationImage(
-                        image: AssetImage("images/Splash_screen.PNG"),
-                        fit: BoxFit.cover,
-                      ),
+                      image: AssetImage("images/Splash_screen.PNG"),
+                      fit: BoxFit.cover,
                     ),
                   ),
                 ),
-              const SizedBox(
-                height: 20,
               ),
-              TextFormField(
-                controller: textController,
-                decoration: InputDecoration(
-                    fillColor: Colors.white,
-                    focusColor: Colors.red,
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.grey),
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    filled: true
-                ),
-                minLines: 5,
-                keyboardType: TextInputType.multiline,
-                maxLines: 20,
+            const SizedBox(
+              height: 20,
+            ),
+            TextFormField(
+              controller: textController,
+              decoration: InputDecoration(
+                  fillColor: Colors.white,
+                  focusColor: Colors.red,
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.grey),
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  filled: true
               ),
+              minLines: 5,
+              keyboardType: TextInputType.multiline,
+              maxLines: 20,
+            ),
 
-              Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      alignment: Alignment.center,
-                      child: Card(
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          //mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            IconButton(
-                              icon: const Icon(Icons.remove),
-                              onPressed: () => _itemCountDecrease(),
-                            ),
-                            Text(Note.toString()),
-                            IconButton(
-                              icon: const Icon(Icons.add),
-                              onPressed: () => _itemCountIncrease(),
-                            ),
-                          ],
-                        ),
+            Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    alignment: Alignment.center,
+                    child: Card(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        //mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          IconButton(
+                            icon: const Icon(Icons.remove),
+                            onPressed: () => _itemCountDecrease(),
+                          ),
+                          Text(Note.toString()),
+                          IconButton(
+                            icon: const Icon(Icons.add),
+                            onPressed: () => _itemCountIncrease(),
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                  const SizedBox(width: 20,),
-                  Expanded(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        IconButton(
-                          icon: Icon(Icons.calendar_today),
-                          color: Colors.red,
-                          iconSize: 30,
-                          onPressed: () {
-                            _selectDate(context);
+                ),
+                const SizedBox(width: 20,),
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      IconButton(
+                        icon: Icon(Icons.calendar_today),
+                        color: Colors.red,
+                        iconSize: 30,
+                        onPressed: () {
+                          _selectDate(context);
+                        },
+                      ),
+                      Text('Date de visite : ' + currentDate.toString())
+                    ],
+                  ),
+                ),
+              ],
+            ),
+
+
+
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                              (Set<MaterialState> states) {
+                            if (states.contains(MaterialState.pressed))
+                              return Colors.red;
+                            return Colors.red; // Use the component's default.
                           },
                         ),
-                        Text('Date de visite : ' + currentDate.toString())
-                      ],
-                    ),
+                      ),
+                      onPressed: () => getImage(source: ImageSource.camera),
+                      child: const Text(
+                          'Appareil photo', style: TextStyle(fontSize: 18))
                   ),
-                ],
-              ),
-
-
-
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                        style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                                (Set<MaterialState> states) {
-                              if (states.contains(MaterialState.pressed))
-                                return Colors.red;
-                              return Colors.red; // Use the component's default.
-                            },
-                          ),
+                ),
+                const SizedBox(width: 20,),
+                Expanded(
+                  child: ElevatedButton(
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                              (Set<MaterialState> states) {
+                            if (states.contains(MaterialState.pressed))
+                              return Colors.red;
+                            return Colors.red; // Use the component's default.
+                          },
                         ),
-                        onPressed: () => getImage(source: ImageSource.camera),
-                        child: const Text(
-                            'Appareil photo', style: TextStyle(fontSize: 18))
-                    ),
+                      ),
+                      onPressed: () => getImage(source: ImageSource.gallery),
+                      child: const Text(
+                          'Galerie', style: TextStyle(fontSize: 18))
                   ),
-                  const SizedBox(width: 20,),
-                  Expanded(
-                    child: ElevatedButton(
-                        style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                                (Set<MaterialState> states) {
-                              if (states.contains(MaterialState.pressed))
-                                return Colors.red;
-                              return Colors.red; // Use the component's default.
-                            },
-                          ),
+                )
+              ],
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                              (Set<MaterialState> states) {
+                            return Colors.red; // Use the component's default.
+                          },
                         ),
-                        onPressed: () => getImage(source: ImageSource.gallery),
-                        child: const Text(
-                            'Galerie', style: TextStyle(fontSize: 18))
-                    ),
-                  )
-                ],
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                        style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                                (Set<MaterialState> states) {
-                              return Colors.red; // Use the component's default.
-                            },
-                          ),
-                        ),
-                        onPressed: () => uploadFile(tmpFile),
-                        child: const Text(
-                            'Enregistrer', style: TextStyle(fontSize: 18))
-                    ),
+                      ),
+                      onPressed: () => uploadFile(tmpFile),
+                      child: const Text(
+                          'Enregistrer', style: TextStyle(fontSize: 18))
                   ),
-                ],
-              ),
-            ],
-          ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
@@ -802,7 +830,7 @@ class _HomeState extends State<Home> {
         );
       },
     );
-    String fileName = basename(filePath.path);
+    String fileName = "fdvrbs_"+basename(filePath.path);
     try {
       FormData formData = FormData.fromMap({
         "file": await MultipartFile.fromFile(
@@ -838,6 +866,442 @@ class _HomeState extends State<Home> {
               )
             ],
           ),
+      );
+    } catch (e) {
+      print("expectation caught: $e");
+    }
+
+  }
+
+  Future<String?> _getId() async {
+    var deviceInfo = DeviceInfoPlugin();
+    String? deviceId;
+
+    if (Platform.isIOS) { // import 'dart:io'
+      var iosDeviceInfo = await deviceInfo.iosInfo;
+      deviceId = await iosDeviceInfo.identifierForVendor; // unique ID on iOS
+    } else {
+      var androidDeviceInfo = await deviceInfo.androidInfo;
+      deviceId = await androidDeviceInfo.androidId; // unique ID on Android
+    }
+    String matric = (await getData("SELECT DISTINCT matricule FROM users WHERE id_tel='$deviceId'", 'matricule')).first.replaceAll('"', '');
+    setState(() => _deviceIdMatricule = matric);
+    setState(() => _deviceId = deviceId);
+  }
+  _itemCountIncrease() {
+    setState(() {
+      if (Note < 10) {
+        Note += 1;
+      }
+    });
+  }
+  _itemCountDecrease() {
+    setState(() {
+      if (Note > 0) {
+        Note -= 1;
+      }
+    });
+  }
+}
+
+class _Home2State extends State<Home2> {
+  String uploadEndPoint = 'http://fdvrbi.fr/image_upload.php';
+  Future<File>? file;
+  String status = '';
+  String? base64Image;
+  File? tmpFile;
+  String errMessage = 'Error Uploading Image';
+  String? _selectMagasin;
+  String? _selectTheme;
+  String? _deviceIdMatricule;
+  String? _deviceId;
+  TextEditingController textController = TextEditingController();
+  TextEditingController textController2 = TextEditingController();
+  int Note = 5;
+  DateTime now = DateTime.now();
+  String currentDate = DateFormat('y-MM-dd').format(DateTime.now());
+  @override
+  Widget build(BuildContext context) {
+    print(context);
+    Map arguments = ModalRoute.of(context)?.settings.arguments as Map;
+    return Scaffold(
+      backgroundColor: Color.fromRGBO(255,255,255, 1),
+      resizeToAvoidBottomInset: true,
+      appBar: AppBar(
+        title: const Text('Nouvelle fiche de visite'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.file_copy_outlined),
+            onPressed: () {
+              Navigator.push(
+                this.context,
+                MaterialPageRoute(builder: (context) => MesFiches()),
+              );
+            },
+          ),
+        ],
+        backgroundColor: Colors.red,
+        centerTitle: true,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(12.0),
+
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            FutureBuilder(
+              future: getData(
+                  'SELECT DISTINCT "test" as Code_CM, CONCAT(Code_CM," - ",nom_mag) as Code_CM FROM magasin WHERE Code_CM LIKE "%CM%" AND OuvertFerme = 0 ORDER BY nom_mag',
+                  'Code_CM'),
+              builder: (BuildContext context,
+                  AsyncSnapshot<dynamic> snapshot) {
+                if (snapshot.connectionState == ConnectionState.done &&
+                    snapshot.hasData && snapshot.data != null) {
+                  List<String> listeMagasins = [];
+                  for (var i = 0; i < snapshot.data.length; i++) {
+                    listeMagasins.add(snapshot.data[i].replaceAll("[", "")
+                        .replaceAll("]", "")
+                    );
+                  }
+                  return
+                    Container(
+                        height: 30,
+                        child: DropdownButton<String>(
+                          isExpanded: true,
+                          value: _selectMagasin,
+                          onChanged: (String? magasin) {
+                            setState(() {
+                              _selectMagasin = magasin!;
+                            });
+                          },
+                          style: const TextStyle(color: Colors.black),
+                          items: listeMagasins.map((String value) {
+                            return
+                              DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value.replaceAll('"', '')),
+                              );
+                          }).toSet().toList(),
+                        )
+                    );
+                } else {
+                  return const Center(child: CircularProgressIndicator());
+                }
+              },
+            ),
+            FutureBuilder(
+              future: getData('SELECT DISTINCT theme FROM themes', 'theme'),
+              builder: (BuildContext context,
+                  AsyncSnapshot<dynamic> snapshot) {
+                if (snapshot.connectionState == ConnectionState.done && snapshot.hasData && snapshot.data != null) {
+                  List<String> listeThemes = [];
+                  for (var i = 0; i < snapshot.data.length; i++) {
+                    listeThemes.add(snapshot.data[i].replaceAll("[", "")
+                        .replaceAll("]", "")
+                    );
+                  }
+                  return
+                    Container(
+                        height: 40,
+                        child: DropdownButton<String>(
+                          isExpanded: true,
+                          value: _selectTheme,
+                          onChanged: (String? theme) {
+                            setState(() {
+                              _selectTheme = theme!;
+                            });
+                          },
+                          style: const TextStyle(color: Colors.black),
+                          items: listeThemes.map((String value) {
+                            return
+                              DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value.replaceAll('"', '').replaceAll(
+                                    "_", " ")),
+                              );
+                          }).toSet().toList(),
+                        )
+                    );
+                } else {
+                  return const Center(child: CircularProgressIndicator());
+                }
+              },
+            ),
+
+            if(tmpFile != null)
+              Container(
+                width: 640,
+                height: 320,
+                alignment: Alignment.topCenter,
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: FileImage(tmpFile!),
+                  ),
+                ),
+              )
+            else
+              GestureDetector(
+                onTap: () => getImage(source: ImageSource.camera),
+                child: Container(
+                  width: 640,
+                  height: 320,
+                  alignment: Alignment.center,
+                  decoration: const BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage("images/Splash_screen.PNG"),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+              ),
+            const SizedBox(
+              height: 20,
+            ),
+            TextFormField(
+              controller: textController,
+              decoration: InputDecoration(
+                  fillColor: Colors.white,
+                  focusColor: Colors.red,
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.grey),
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  filled: true
+              ),
+              minLines: 5,
+              keyboardType: TextInputType.multiline,
+              maxLines: 20,
+            ),
+
+            Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    alignment: Alignment.center,
+                    child: Card(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        //mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          IconButton(
+                            icon: const Icon(Icons.remove),
+                            onPressed: () => _itemCountDecrease(),
+                          ),
+                          Text(Note.toString()),
+                          IconButton(
+                            icon: const Icon(Icons.add),
+                            onPressed: () => _itemCountIncrease(),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 20,),
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      IconButton(
+                        icon: Icon(Icons.calendar_today),
+                        color: Colors.red,
+                        iconSize: 30,
+                        onPressed: () {
+                          _selectDate(context);
+                        },
+                      ),
+                      Text('Date de visite : ' + currentDate.toString())
+                    ],
+                  ),
+                ),
+              ],
+            ),
+
+
+
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                              (Set<MaterialState> states) {
+                            if (states.contains(MaterialState.pressed))
+                              return Colors.red;
+                            return Colors.red; // Use the component's default.
+                          },
+                        ),
+                      ),
+                      onPressed: () => getImage(source: ImageSource.camera),
+                      child: const Text(
+                          'Appareil photo', style: TextStyle(fontSize: 18))
+                  ),
+                ),
+                const SizedBox(width: 20,),
+                Expanded(
+                  child: ElevatedButton(
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                              (Set<MaterialState> states) {
+                            if (states.contains(MaterialState.pressed))
+                              return Colors.red;
+                            return Colors.red; // Use the component's default.
+                          },
+                        ),
+                      ),
+                      onPressed: () => getImage(source: ImageSource.gallery),
+                      child: const Text(
+                          'Galerie', style: TextStyle(fontSize: 18))
+                  ),
+                )
+              ],
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                              (Set<MaterialState> states) {
+                            return Colors.red; // Use the component's default.
+                          },
+                        ),
+                      ),
+                      onPressed: () => uploadFile(tmpFile),
+                      child: const Text(
+                          'Enregistrer', style: TextStyle(fontSize: 18))
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    DateTime? pickedDate = await showDatePicker(
+      initialDate: now,
+      firstDate: DateTime(2015),
+      lastDate: DateTime(2050),
+      context: context,
+      builder: (BuildContext context, Widget ?child) {
+        return Theme(
+          data: ThemeData(
+            primarySwatch: Colors.grey,
+            splashColor: Colors.black,
+            textTheme: const TextTheme(
+              subtitle1: TextStyle(color: Colors.black),
+              button: TextStyle(color: Colors.black),
+            ),
+            accentColor: Colors.black,
+            colorScheme: const ColorScheme.light(
+                primary: Colors.redAccent,
+                primaryVariant: Colors.black,
+                secondaryVariant: Colors.black,
+                onSecondary: Colors.black,
+                onPrimary: Colors.white,
+                surface: Colors.black,
+                onSurface: Colors.black,
+                secondary: Colors.black),
+            dialogBackgroundColor: Colors.white,
+          ),
+          child: child ??Text(""),
+        );
+      },
+    );
+
+    if (pickedDate != null && pickedDate != now) {
+      setState(() {
+        now = pickedDate;
+        currentDate = DateFormat('y-MM-dd').format(pickedDate);
+      });
+    }
+  }
+
+  void getImage({required ImageSource source}) async {
+    final file = await ImagePicker().pickImage(
+      source: source,
+      imageQuality: 60,
+    );
+    setState(() {
+      tmpFile = File(file!.path);
+    });
+  }
+
+  Future insertData(monImage) async {
+    String monMag = _selectMagasin!.substring(0, 5);
+    String monMotif = _selectTheme!.replaceAll('"', '');
+    String monComm = textController.text;
+    int maNote = Note;
+    String dateVisite = currentDate;
+
+    final url = Uri.parse('http://fdvrbi.fr/insert.php')
+        .replace(queryParameters: {
+      'req': "INSERT INTO fiche_visite_autre2 (Code_CM, Motif_Visite, Matricule_creation, Rapport_Visite, IMAGE_1, NOTE_1, Date_Visite) VALUES ('$monMag', '$monMotif', '$_deviceIdMatricule', '$monComm', '$monImage', '$maNote', '$dateVisite')",
+    });
+    http.Response response = await http.post(url);
+  }
+
+  void uploadFile(filePath) async {
+    _getId();
+    showDialog(
+      context: this.context,
+      builder: (BuildContext context) {
+        return Dialog(
+          child:Container(
+            height: 80,
+            width: 200,
+            margin: const EdgeInsets.all(10.0),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: const [
+                CircularProgressIndicator(),
+                Text("   Enregistrement en cours"),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+    String fileName = "fdvrbs_"+basename(filePath.path);
+    try {
+      FormData formData = FormData.fromMap({
+        "file": await MultipartFile.fromFile(
+            filePath.path, filename: fileName),
+      });
+      Response response = await Dio().post(
+          "http://fdvrbi.fr/image_upload.php", data: formData
+      );
+      insertData(fileName);
+      showDialog(
+        barrierDismissible: false,
+        context: this.context,
+        builder: (context) =>
+            AlertDialog(
+              title: Text('Chargement...'),
+              content: Text(response.toString().replaceAll('"', ' ')),
+              actions: [
+                ElevatedButton(
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                            (Set<MaterialState> states) {
+                          return Colors.red; // Use the component's default.
+                        },
+                      ),
+                    ),
+                    onPressed: () {
+                      Navigator.push(
+                        this.context,
+                        MaterialPageRoute(builder: (context) => Home()),
+                      );
+                    },
+                    child: Text('Ok')
+                )
+              ],
+            ),
       );
     } catch (e) {
       print("expectation caught: $e");
