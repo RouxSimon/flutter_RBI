@@ -486,7 +486,10 @@ class _HomeState extends State<Home> {
                         },
                       ),
                     ),
-                    onPressed: () => uploadFile(ID, tmpFile),
+                    onPressed: () => {
+                      uploadFile(ID, tmpFile),
+                      _getId()
+                    },
                     child: const Text(
                         'Enregistrer', style: TextStyle(fontSize: 18)
                     ),
@@ -555,7 +558,7 @@ class _HomeState extends State<Home> {
     String monMotif = _selectTheme!.replaceAll('"', '');
     String monComm = textController.text;
     int maNote = Note;
-    String dateVisite = currentDate;
+    String dateVisite = currentDate; //which is the selected one not the current
 
     final url = Uri.parse('http://fdvrbi.fr/insert.php')
         .replace(queryParameters: {
@@ -564,22 +567,27 @@ class _HomeState extends State<Home> {
     http.Response response = await http.post(url);
   }
 
-  Future updateData(id) async {
+  Future updateData(id, [fileP]) async {
     String monMag = _selectMagasin!.substring(0, 5);
     String monMotif = _selectTheme!.replaceAll('"', '');
     String monComm = textController.text;
     int maNote = Note;
     String dateVisite = currentDate;
-
+    String? monImage = "";
+    if(fileP!=null) {
+      monImage = "IMAGE_1 = '$fileP',";
+      print("UPDATE fiche_visite_autre2 SET Code_CM = '$monMag', Motif_Visite = '$monMotif', Matricule_Modif = '$_deviceIdMatricule', $monImage Rapport_Visite = '$monComm', NOTE_1 = '$maNote', Date_Visite = '$dateVisite' WHERE ID = '$id'");
+    }
     final url = Uri.parse('http://fdvrbi.fr/insert.php')
-        .replace(queryParameters: {
-      'req': "UPDATE fiche_visite_autre2 SET Code_CM = '$monMag', Motif_Visite = '$monMotif', Matricule_Modif = '$_deviceIdMatricule', Rapport_Visite = '$monComm', NOTE_1 = '$maNote', Date_Visite = '$dateVisite' WHERE ID = '$id'",
-    });
+      .replace(
+        queryParameters: {
+          'req': "UPDATE fiche_visite_autre2 SET Code_CM = '$monMag', Motif_Visite = '$monMotif', Matricule_Modif = '$_deviceIdMatricule', $monImage Rapport_Visite = '$monComm', NOTE_1 = '$maNote', Date_Visite = '$dateVisite' WHERE ID = '$id'",
+        }
+      );
     http.Response response = await http.post(url);
   }
 
   void uploadFile(id, filePath) async {
-    _getId();
     showDialog(
       context: this.context,
       builder: (BuildContext context) {
@@ -599,8 +607,7 @@ class _HomeState extends State<Home> {
         );
       },
     );
-    print(filePath);
-    if(filePath!=null) {
+    if(id == null) {
       String fileName = "fdvrbs_"+basename(filePath.path);
       try {
         FormData formData = FormData.fromMap({
@@ -642,7 +649,24 @@ class _HomeState extends State<Home> {
         print("expectation caught: $e");
       }
     } else {
-      updateData(id);
+      if(filePath!=null){
+        String fileName = "fdvrbs_"+basename(filePath.path);
+        try {
+          FormData formData = FormData.fromMap({
+            "file": await MultipartFile.fromFile(
+                filePath.path, filename: fileName),
+          });
+          Response response = await Dio().post(
+              "http://fdvrbi.fr/image_upload.php", data: formData
+          );
+          print(filePath);
+          updateData(id, fileName);
+        } catch (e) {
+          print("expectation caught: $e");
+        }
+      } else {
+        updateData(id);
+      }
       showDialog(
         barrierDismissible: false,
         context: this.context,
