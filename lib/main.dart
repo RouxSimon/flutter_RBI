@@ -576,7 +576,6 @@ class _HomeState extends State<Home> {
     String? monImage = "";
     if(fileP!=null) {
       monImage = "IMAGE_1 = '$fileP',";
-      print("UPDATE fiche_visite_autre2 SET Code_CM = '$monMag', Motif_Visite = '$monMotif', Matricule_Modif = '$_deviceIdMatricule', $monImage Rapport_Visite = '$monComm', NOTE_1 = '$maNote', Date_Visite = '$dateVisite' WHERE ID = '$id'");
     }
     final url = Uri.parse('http://fdvrbi.fr/insert.php')
       .replace(
@@ -607,7 +606,7 @@ class _HomeState extends State<Home> {
         );
       },
     );
-    if(id == null) {
+    if(id == null && _selectMagasin != null && _selectTheme != null && filePath != null) {
       String fileName = "fdvrbs_"+basename(filePath.path);
       try {
         FormData formData = FormData.fromMap({
@@ -648,7 +647,7 @@ class _HomeState extends State<Home> {
       } catch (e) {
         print("expectation caught: $e");
       }
-    } else {
+    } else if(_selectMagasin != null && _selectTheme != null) {
       if(filePath!=null){
         String fileName = "fdvrbs_"+basename(filePath.path);
         try {
@@ -659,7 +658,6 @@ class _HomeState extends State<Home> {
           Response response = await Dio().post(
               "http://fdvrbi.fr/image_upload.php", data: formData
           );
-          print(filePath);
           updateData(id, fileName);
         } catch (e) {
           print("expectation caught: $e");
@@ -688,6 +686,31 @@ class _HomeState extends State<Home> {
                     this.context,
                     MaterialPageRoute(builder: (context) => Home()),
                   );
+                },
+                child: Text('Ok')
+            )
+          ],
+        ),
+      );
+    } else {
+      showDialog(
+        barrierDismissible: false,
+        context: this.context,
+        builder: (context) => AlertDialog(
+          title: Text('Chargement...'),
+          content: Text('Veuillez renseigner un magasin, un theme et une image au minimum...'),
+          //response.toString().replaceAll('"', ' ')
+          actions: [
+            ElevatedButton(
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                        (Set<MaterialState> states) {
+                      return Colors.red; // Use the component's default.
+                    },
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.of(context, rootNavigator: true).pop('dialog');
                 },
                 child: Text('Ok')
             )
@@ -768,7 +791,7 @@ class _FirstScreenState extends State<FirstScreen> {
                   ),
                 ),
               ),
-              Text('Version 1.1'),
+              Text('Version 1.0.2'),
               ElevatedButton(
                   style: ButtonStyle(
                     backgroundColor: MaterialStateProperty.resolveWith<Color>(
@@ -885,7 +908,7 @@ class _MesFichesState extends State<MesFiches> {
                             );
                           },
                           icon: const Icon(
-                            Icons.file_copy_outlined,
+                            Icons.broken_image_outlined,
                             color: Colors.red,
                           ),
                         ),
@@ -919,7 +942,10 @@ class _MesFichesState extends State<MesFiches> {
                         Text(_mesColones[i]['Code_CM'].toString()),
                       ),
                       DataCell(
-                        Text(_mesColones[i]['Motif_Visite'].toString()),
+                        Text(_mesColones[i]['Nom_Mag'].toString()),
+                      ),
+                      DataCell(
+                        Text(_mesColones[i]['Motif_Visite'].replaceAll('_', ' ').toString()),
                       ),
                       DataCell(
                         Text(_mesColones[i]['Date_Visite'].toString()),
@@ -953,6 +979,12 @@ class _MesFichesState extends State<MesFiches> {
                           DataColumn(
                             label: Text(
                               'Code CM',
+                              style: TextStyle(color: Colors.deepOrange, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          DataColumn(
+                            label: Text(
+                              'Magasin',
                               style: TextStyle(color: Colors.deepOrange, fontWeight: FontWeight.bold),
                             ),
                           ),
