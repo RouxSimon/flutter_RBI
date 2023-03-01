@@ -791,7 +791,7 @@ class _FirstScreenState extends State<FirstScreen> {
                   ),
                 ),
               ),
-              Text('Version 1.0.2'),
+              Text('Version 1.0.3'),
               ElevatedButton(
                   style: ButtonStyle(
                     backgroundColor: MaterialStateProperty.resolveWith<Color>(
