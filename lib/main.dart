@@ -261,7 +261,7 @@ class _HomeState extends State<Home> {
           children: [
             FutureBuilder(
               future: getData(
-                  'SELECT DISTINCT "test" as Code_CM, CONCAT(Code_CM," - ",nom_mag) as Code_CM FROM magasin WHERE Code_CM LIKE "%CM%" AND OuvertFerme = 0 ORDER BY nom_mag',
+                  'SELECT DISTINCT "test" as Code_CM, CONCAT(Code_CM," - ",nom_mag) as Code_CM FROM magasin WHERE OuvertFerme = 0 ORDER BY nom_mag',
                   'Code_CM'),
               builder: (BuildContext context,
                   AsyncSnapshot<dynamic> snapshot) {
