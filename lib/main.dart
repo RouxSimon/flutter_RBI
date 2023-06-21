@@ -174,7 +174,7 @@ class _ConnexionState extends State<Connexion> {
   }
 
   Future<String> checkMDP(MATR, MDP) async {
-    final url = Uri.parse('https://fdvrbi.fr/checkMDP.php')
+    final url = Uri.parse('https://outils-casino.fr/checkMDP.php')
         .replace(queryParameters: {
       'MATR': MATR,
       'MDP': MDP,
@@ -187,7 +187,7 @@ class _ConnexionState extends State<Connexion> {
   Future insertUser() async {
     String monMatricule = textController.text;
     if(monMatricule!='' && monMatricule.length==7) {
-      final url = Uri.parse('https://fdvrbi.fr/insert.php')
+      final url = Uri.parse('https://outils-casino.fr/insert.php')
           .replace(queryParameters: {
         'req': "UPDATE users SET id_tel = '$_deviceId' WHERE matricule='$monMatricule'",
       });
@@ -202,7 +202,7 @@ class _ConnexionState extends State<Connexion> {
 }
 
 class _HomeState extends State<Home> {
-  String uploadEndPoint = 'https://fdvrbi.fr/image_upload.php';
+  String uploadEndPoint = 'https://outils-casino.fr/image_upload.php';
   Future<File>? file;
   String status = '';
   String? base64Image;
@@ -230,7 +230,7 @@ class _HomeState extends State<Home> {
       now = DateTime.parse(arguments['Date']);
       currentDate = arguments['Date'];
       textController.text = arguments['Rapport'];
-      //tmpFile = File('https://fdvrbi.fr/fdvpict/'+);
+      //tmpFile = File('https://outils-casino.fr/fdvpict/'+);
       mnImage = arguments['Image'];
     }
     arguments.clear();
@@ -369,7 +369,7 @@ class _HomeState extends State<Home> {
                   width: 640,
                   height: 320,
                   alignment: Alignment.center,
-                  child: Image.network('https://fdvrbi.fr/fdvpict/'+mnImage.toString()),
+                  child: Image.network('https://outils-casino.fr/fdvpict/'+mnImage.toString()),
                 ),
             const SizedBox(
               height: 20,
@@ -560,7 +560,7 @@ class _HomeState extends State<Home> {
     int maNote = Note;
     String dateVisite = currentDate; //which is the selected one not the current
 
-    final url = Uri.parse('https://fdvrbi.fr/insert.php')
+    final url = Uri.parse('https://outils-casino.fr/insert.php')
         .replace(queryParameters: {
       'req': "INSERT INTO fiche_visite_autre2 (Code_CM, Motif_Visite, Matricule_creation, Rapport_Visite, IMAGE_1, NOTE_1, Date_Visite) VALUES ('$monMag', '$monMotif', '$_deviceIdMatricule', '$monComm', '$monImage', '$maNote', '$dateVisite')",
     });
@@ -577,7 +577,7 @@ class _HomeState extends State<Home> {
     if(fileP!=null) {
       monImage = "IMAGE_1 = '$fileP',";
     }
-    final url = Uri.parse('https://fdvrbi.fr/insert.php')
+    final url = Uri.parse('https://outils-casino.fr/insert.php')
       .replace(
         queryParameters: {
           'req': "UPDATE fiche_visite_autre2 SET Code_CM = '$monMag', Motif_Visite = '$monMotif', Matricule_Modif = '$_deviceIdMatricule', $monImage Rapport_Visite = '$monComm', NOTE_1 = '$maNote', Date_Visite = '$dateVisite' WHERE ID = '$id'",
@@ -614,7 +614,7 @@ class _HomeState extends State<Home> {
               filePath.path, filename: fileName),
         });
         Response response = await Dio().post(
-            "https://fdvrbi.fr/image_upload.php", data: formData
+            "https://outils-casino.fr/image_upload.php", data: formData
         );
         insertData(fileName);
         showDialog(
@@ -656,7 +656,7 @@ class _HomeState extends State<Home> {
                 filePath.path, filename: fileName),
           });
           Response response = await Dio().post(
-              "https://fdvrbi.fr//image_upload.php", data: formData
+              "https://outils-casino.fr//image_upload.php", data: formData
           );
           updateData(id, fileName);
         } catch (e) {
@@ -902,7 +902,7 @@ class _MesFichesState extends State<MesFiches> {
                               context: context,
                               builder: (context) {
                                 return Dialog(
-                                  child: Image.network('https://fdvrbi.fr/fdvpict/'+_mesColones[i]['IMAGE_1'].toString()),
+                                  child: Image.network('https://outils-casino.fr/fdvpict/'+_mesColones[i]['IMAGE_1'].toString()),
                                 );
                               }
                             );
@@ -1041,7 +1041,7 @@ class _MesFichesState extends State<MesFiches> {
 
 //=========== Global functions ===========
 Future<List> getData(maReq, maData) async {
-  final url = Uri.parse('https://fdvrbi.fr//SelectTest.php')
+  final url = Uri.parse('https://outils-casino.fr//SelectTest.php')
       .replace(queryParameters: {
     'req': maReq,
     'data': maData,
